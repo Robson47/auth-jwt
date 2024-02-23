@@ -1,19 +1,19 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
+const router = express.Router();
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 /* Rota Inicial/Pública */
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     res.status(200).json({
         msg: 'API Inicializada com sucesso!'
     });
 });
 
 /* Rota Privada */
-app.get('/user/:id', checkToken, async (req, res) => {
+router.get('/user/:id', checkToken, async (req, res) => {
     const id = req.params.id;
     const user = await User.findById(id, '-password');
 
@@ -42,7 +42,7 @@ function checkToken(req, res, next) {
 };
 
 /* Rota de Registro */
-app.post('/auth/register', async (req, res) => {
+router.post('/auth/register', async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
 
     /* Validação de Dados */
@@ -86,7 +86,7 @@ app.post('/auth/register', async (req, res) => {
 });
 
 /* Logar Usuário */
-app.post('/auth/login', async (req, res) => {
+router.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     /* Validação de Dados */
@@ -122,3 +122,5 @@ app.post('/auth/login', async (req, res) => {
 
     res.status(200).json({ msg: 'Autenticação realizada com sucesso!', token });
 });
+
+module.exports = router;
