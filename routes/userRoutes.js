@@ -12,6 +12,12 @@ router.get('/user/:id', UserController.privateRoute);
 router.post('/auth/register', UserController.register);
 
 // Rota de Login
-router.post('/auth/login', UserController.login)
+router.post('/auth/login', UserController.login);
+
+// Rota de Alteração de Dados
+router.patch('/account/update/:id', UserController.updateData);
+
+// Rota de Exclusão de Usuário
+router.delete('/account/delete/:id', UserController.deleteUser);
 
 module.exports = router;
