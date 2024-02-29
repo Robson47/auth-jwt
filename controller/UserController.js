@@ -1,29 +1,9 @@
 require('dotenv').config();
-const express = require('express');
-const router = express.Router();
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-/* Rota Inicial/Pública */
-router.get('/', (req, res) => {
-    res.status(200).json({
-        msg: 'API Inicializada com sucesso!'
-    });
-});
-
-/* Rota Privada */
-router.get('/user/:id', checkToken, async (req, res) => {
-    const id = req.params.id;
-    const user = await User.findById(id, '-password');
-
-    if (!user) {
-        return res.status(404).json({ msg: 'Usuário não encontrado!' });
-    };
-
-    res.status(200).json({ user });
-});
-
+// Método para validação de token
 function checkToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(" ")[1];
@@ -41,8 +21,27 @@ function checkToken(req, res, next) {
     };
 };
 
+// Rota Inicial
+exports.publicRoute = (req, res) => {
+    res.status(200).json({
+        msg: 'API Inicializada com sucesso!'
+    });
+};
+
+// Rota Privada
+exports.privateRoute = checkToken, async (req, res) => {
+    const id = req.params.id;
+    const user = await User.findById(id, '-password');
+
+    if (!user) {
+        return res.status(404).json({ msg: 'Usuário não encontrado!' });
+    };
+
+    res.status(200).json({ user });
+};
+
 /* Rota de Registro */
-router.post('/auth/register', async (req, res) => {
+exports.register = async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
 
     /* Validação de Dados */
@@ -83,10 +82,10 @@ router.post('/auth/register', async (req, res) => {
         console.log(error);
         res.status(500).json({ msg: error });
     };
-});
+};
 
 /* Logar Usuário */
-router.post('/auth/login', async (req, res) => {
+exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     /* Validação de Dados */
@@ -115,12 +114,9 @@ router.post('/auth/login', async (req, res) => {
     try {
         const secret = process.env.SECRET;
         const token = jwt.sign({ id: user._id }, secret);
+        res.status(200).json({ msg: 'Autenticação realizada com sucesso!', token });
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: error });
     };
-
-    res.status(200).json({ msg: 'Autenticação realizada com sucesso!', token });
-});
-
-module.exports = router;
+};
