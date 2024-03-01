@@ -1,3 +1,4 @@
+// Importações
 require('dotenv').config();
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
@@ -121,6 +122,7 @@ exports.login = async (req, res) => {
     };
 };
 
+// Modificar Dados do Usuário
 exports.updateData = async (req, res) => {
     const id = req.params.id;
     const { name, email } = req.body;
@@ -139,6 +141,7 @@ exports.updateData = async (req, res) => {
     };
 };
 
+// Deletar usuário
 exports.deleteUser = async (req, res) => {
     const id = req.params.id;
     const user = await User.findOne({ _id: id });

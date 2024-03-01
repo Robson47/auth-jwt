@@ -1,3 +1,4 @@
+// Importações
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controller/UserController');
@@ -20,4 +21,5 @@ router.patch('/account/update/:id', UserController.updateData);
 // Rota de Exclusão de Usuário
 router.delete('/account/delete/:id', UserController.deleteUser);
 
+// Exportação do Router
 module.exports = router;
