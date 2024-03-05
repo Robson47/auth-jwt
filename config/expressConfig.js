@@ -1,6 +1,7 @@
 // Importações
 const express = require('express');
 const UserRoutes = require('../routes/userRoutes');
+const OTPConfig = require('./OTPConfig')
 const app = express();
 const cors = require('cors');
 

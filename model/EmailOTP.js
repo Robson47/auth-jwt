@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // Modelo de Verificação de Usuário
-const EmailVerification = mongoose.model('User', {
+const EmailVerification = mongoose.model('UserOTP', {
     userId: String,
     uniqueString: String,
     createdAt: Date,
