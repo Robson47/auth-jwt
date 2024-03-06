@@ -46,17 +46,19 @@ exports.register = async (req, res) => {
     const { name, email, password, confirmPassword, technician } = req.body;
 
     /* Validação de Dados */
-    if (!name) {
-        return res.status(422).json({ msg: 'O nome é obrigatório!' });
-    };
 
-    if (!email) {
-        return res.status(422).json({ msg: 'O email é obrigatório!' });
-    };
+    if (!name || !email || !password) {
+        return res.status(422).json({ msg: 'Por favor preencha todos os dados!' });
 
-    if (!password) {
-        return res.status(422).json({ msg: 'A senha é obrigatória!' });
-    };
+    } else if (!/^[a-zA-Z ]*$/.test(name)) {
+        return res.status(422).json({ msg: 'Por favor digite um nome válido!' });
+
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2, 4}$/.test(email)){
+        return res.status(422).json({ msg: 'Por favor digite um e-mail válido!' });
+
+    }else if (!/^(?=.*[A-Z])(?=.*[!#@$%&])(?=.*[0-9])(?=.*[a-z]).{6,15}$/.test(password)){
+        return res.status(422).json({ msg: 'Por favor digite uma senha válida!' });
+    }
 
     if (password !== confirmPassword) {
         return res.status(422).json({ msg: 'As senhas não são iguais!' });

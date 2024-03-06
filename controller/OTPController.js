@@ -29,23 +29,23 @@ exports.emailOTP = async ({ _id, email }, res, req) => {
             subject: "Verificação de Email",
             text: "Seu email será verificado futuramente",
             html: `<h1>Digite o código: ${otp} para concluir a verificação do seu E-mail</h1>
-                    <p><b>Este código expira em 1 hora</b></p>`
-            /*attachments: [
+                    <p><b>Este código expira em 1 hora</b></p>`,
+            attachments: [
                 {
                     filename: 'images.jpg',
-                    path: path.call(__dirname, '../test/images.jpg'),
+                    path: '../test/images.jpg',
                     contentType: 'image/jpg'
                 }
-            ]*/
+            ]
         });
-        res.status(200).json({ 
-            msg: 'E-mail enviado no seu Inbox', 
+        res.status(200).json({
+            msg: 'E-mail enviado no seu Inbox',
             data: {
                 userId: _id,
                 email,
             }
-        })
+        });
     } catch (error) {
-
+        res.status(500).json({ msg: error })
     }
 };

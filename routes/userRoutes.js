@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controller/UserController');
+const OTPController = require('../controller/OTPController');
 
 // Rota Pública
 router.get('/', UserController.publicRoute);
@@ -11,6 +12,9 @@ router.get('/user/:id', UserController.privateRoute);
 
 // Rota de Registro
 router.post('/auth/register', UserController.register);
+
+//Rota de Verificação OTP
+router.get('/auth/verify/:id', OTPController.emailOTP)
 
 // Rota de Login
 router.post('/auth/login', UserController.login);
