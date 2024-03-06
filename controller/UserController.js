@@ -43,7 +43,7 @@ exports.privateRoute = checkToken, async (req, res) => {
 
 /* Rota de Registro */
 exports.register = async (req, res) => {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password, confirmPassword, technician } = req.body;
 
     /* Validação de Dados */
     if (!name) {
@@ -74,7 +74,7 @@ exports.register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     /* Criar Usuário */
-    const user = new User({ name, email, password: passwordHash });
+    const user = new User({ name, email, password: passwordHash, verified: false, technician });
 
     try {
         await user.save();
@@ -125,8 +125,8 @@ exports.login = async (req, res) => {
 // Modificar Dados do Usuário
 exports.updateData = async (req, res) => {
     const id = req.params.id;
-    const { name, email } = req.body;
-    const user = { name, email };
+    const { name, email, technician } = req.body;
+    const user = { name, email, technician };
 
     try {
         const updatedUser = await User.updateOne({ _id: id }, user);

@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // Modelo de Verificação de Usuário
-const EmailVerification = mongoose.model('UserOTP', {
+const EmailOTP = mongoose.model('UserOTP', {
     userId: String,
     uniqueString: String,
     createdAt: Date,
@@ -10,4 +10,4 @@ const EmailVerification = mongoose.model('UserOTP', {
 });
 
 // Exportação do Modelo de Verificação de Usuário
-module.exports = EmailVerification;
+module.exports = EmailOTP;
