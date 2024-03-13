@@ -31,7 +31,7 @@ exports.publicRoute = (req, res) => {
 
 // Rota Privada
 exports.privateRoute = checkToken, async (req, res) => {
-    const id = req.params.id;
+    const id = req.params._id;
     const user = await User.findById(id, '-password');
 
     if (!user) {
@@ -43,7 +43,7 @@ exports.privateRoute = checkToken, async (req, res) => {
 
 /* Rota de Registro */
 exports.register = async (req, res) => {
-    const { name, email, password, confirmPassword, technician } = req.body;
+    const { name, email, password, confirmPassword, verified, technician } = req.body;
 
     /* Validação de Dados */
 
@@ -53,7 +53,7 @@ exports.register = async (req, res) => {
     } else if (!/^[a-zA-Z ]*$/.test(name)) {
         return res.status(422).json({ msg: 'Por favor digite um nome válido!' });
 
-    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2, 4}$/.test(email)){
+    } else if (!/\S+@\S+\.\S+/.test(email)){
         return res.status(422).json({ msg: 'Por favor digite um e-mail válido!' });
 
     }else if (!/^(?=.*[A-Z])(?=.*[!#@$%&])(?=.*[0-9])(?=.*[a-z]).{6,15}$/.test(password)){
@@ -76,7 +76,7 @@ exports.register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     /* Criar Usuário */
-    const user = new User({ name, email, password: passwordHash, verified: false, technician });
+    const user = new User({ name, email, password: passwordHash, verified, technician });
 
     try {
         await user.save();

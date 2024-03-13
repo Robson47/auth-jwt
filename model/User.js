@@ -3,11 +3,27 @@ const mongoose = require('mongoose');
 
 // Modelo de Usuário
 const User = mongoose.model('User', {
-    name: String,
-    email: String,
-    password: String,
-    technician: Boolean,
-    verified: Boolean
+    name: {
+        type: String,
+        require: true
+    },
+    email: {
+        type: String,
+        require: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        require: true
+    },
+    technician: {
+        type: Boolean,
+        require: true
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    }
 });
 
 // Exportação do Modelo Usuário
