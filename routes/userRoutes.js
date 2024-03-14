@@ -1,29 +1,13 @@
 // Importações
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controller/UserController');
-const OTPController = require('../controller/OTPController');
+const UserController = require('../controller/userController');
 
 // Rota Pública
 router.get('/', UserController.publicRoute);
 
 // Rota Privada
-router.get('/user/:id', UserController.privateRoute);
-
-// Rota de Registro
-router.post('/auth/register', UserController.register);
-
-//Rota de Verificação OTP
-router.get('/auth/verify/:id', OTPController.emailOTP)
-
-// Rota de Login
-router.post('/auth/login', UserController.login);
-
-// Rota de Alteração de Dados
-router.patch('/account/update/:id', UserController.updateData);
-
-// Rota de Exclusão de Usuário
-router.delete('/account/delete/:id', UserController.deleteUser);
+router.get('/user/:id', UserController.validPrivateRoute);
 
 // Exportação do Router
 module.exports = router;
