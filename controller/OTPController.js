@@ -61,7 +61,7 @@ exports.emailOTP = async (req, res) => {
 exports.confirmOTP = async (req, res) => {
     const { userId, otp } = req.body;
     try {
-        if (!userId || otp) {
+        if (!userId || !otp) {
             res.status(422).json({ msg: 'E-mail ou código de verificação inválidos.' })
         };
 
@@ -80,7 +80,9 @@ exports.confirmOTP = async (req, res) => {
 
         const validOTP = await bcrypt.compare(otp, OTPHash);
 
-        return res.status(200).json({ validOTP });
+        await User.updateOne({ email }, { verified: true });
+
+        return res.status(200).json({ validOTP, email, verified });
     } catch (error) {
         res.status(500).json({ msg: error })
     };

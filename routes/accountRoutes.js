@@ -9,5 +9,7 @@ router.patch('/account/update/:id', accountController.updateData);
 // Rota de Exclusão de Usuário
 router.delete('/account/delete/:id', accountController.deleteUser);
 
+router.post('/account/resetPassword');
+
 // Exportação do Router
 module.exports = router;

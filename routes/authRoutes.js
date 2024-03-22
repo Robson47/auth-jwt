@@ -11,7 +11,7 @@ router.post('/auth/register', authController.register);
 router.get('/auth/verify/:id', OTPController.emailOTP);
 
 //Rota de Confirmação OTP
-router.get('/auth/verify/confirm/:id', OTPController.confirmOTP);
+router.post('/auth/verify/confirm/:id', OTPController.confirmOTP);
 
 // Rota de Login
 router.post('/auth/login', authController.login);

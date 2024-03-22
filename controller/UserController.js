@@ -10,7 +10,7 @@ function checkToken(req, res, next) {
 
     if (!token) {
         return res.status(401).json({ msg: 'Token de acesso não fornecido.' });
-    }
+    };
 
     try {
         const secret = process.env.SECRET;
@@ -19,7 +19,7 @@ function checkToken(req, res, next) {
         next();
     } catch (error) {
         res.status(401).json({ msg: 'Token inválido.' });
-    }
+    };
 }
 
 // Rota Inicial
