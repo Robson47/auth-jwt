@@ -36,7 +36,7 @@ exports.register = async (req, res) => {
         return res.status(422).json({ msg: 'Um usuário com este email já existe!' });
     };
 
-    // Criar a Senha
+    // Criar a Hash da Senha
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 

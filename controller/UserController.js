@@ -38,7 +38,6 @@ exports.privateRoute = async (req, res) => {
         if (!user) {
             return res.status(404).json({ msg: 'Usuário não encontrado.' });
         };
-        console.log(user);
         res.status(200).json({ user });
     } catch (error) {
         res.status(500).json({ msg: 'Erro ao buscar o usuário.' });

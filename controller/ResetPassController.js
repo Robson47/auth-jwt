@@ -1,35 +1,49 @@
-//Importações
+const User = require('../model/User');
 const transporter = require('../config/OTPConfig');
 const EmailOTP = require('../model/EmailOTP');
 const bcrypt = require('bcrypt');
-const User = require('../model/User');
 
-/* Rota para envio de Email */
-exports.emailOTP = async (req, res) => {
+exports.forgotPassword = async (req, res) => {
     try {
+        const { email } = req.body;
+        const userId = req.params.id;
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
         const salt = await bcrypt.genSalt(12);
         const OTPHash = await bcrypt.hash(otp, salt);
-        const userId = req.params.id;
-        const user = await User.findById(userId);
-        const email = user.email;
+
+        // Validar o email
+        if (!email) {
+            res.status(422).json({ msg: 'Email inválido' })
+        };
+
+        const isUser = await User.findById(userId);
+
+        if (isUser.email !== email) {
+            res.status(422).json({ msg: 'Email inválido' })
+        }
+
+        // Checar se o Usuário existe
+        const userExists = await User.findOne({ email: email });
+
+        if (!userExists) {
+            return res.status(422).json({ msg: 'Não existe um usuário com este email!' });
+        };
+
+        // Checar se o usuário é verificado
+        if (!userExists.verified) {
+            return res.status(404).json({ msg: 'Usuário não verificado!' });
+        };
+
         transporter.sendMail({
             from: {
                 name: 'Technic Connect Team',
                 address: 'TechnicConnectTeam@gmail.com'
             },
             to: email,
-            subject: "Verificação de Email",
-            text: "Seu email será verificado futuramente",
-            html: `<h1>Digite o código: ${otp} para concluir a verificação do seu E-mail</h1>
-                    <p><b>Este código expira em 1 hora</b></p>`,
-            attachments: [
-                {
-                    filename: 'images.jpg',
-                    path: './test/images.jpg',
-                    contentType: 'image/jpg'
-                }
-            ]
+            subject: "Redefinição de Senha",
+            text: "Mude sua senha para uma melhor",
+            html: `<h1>Digite o código: ${otp} para alterar sua senha</h1>
+                    <p><b>Este código expira em 1 hora</b></p>`
         });
 
         const newOTPVerification = await new EmailOTP({
@@ -54,21 +68,20 @@ exports.emailOTP = async (req, res) => {
     };
 };
 
-/* Rota para confirmação de OTP */
-exports.confirmOTP = async (req, res) => {
-    const { userId, otp } = req.body;
+exports.changePassword = async (req, res) => {
+    const { userId, otp, newPassword } = req.body;
     try {
-        if (!userId || !otp) {
-            res.status(422).json({ msg: 'E-mail ou código de verificação inválidos.' })
+        if (!userId || !otp || !newPassword) {
+            res.status(422).json({ msg: 'Código de verificação ou Senha inválidos.' });
             return;
-        };
+        }
 
         const otpMatch = await EmailOTP.findOne({ userId: userId });
 
-        if (otpMatch === null) {
+        if (!otpMatch) {
             res.status(422).json({ msg: 'Nenhum código de verificação encontrado.' });
             return;
-        };
+        }
 
         const { expiresAt, uniqueString: OTPHash } = otpMatch;
 
@@ -80,7 +93,15 @@ exports.confirmOTP = async (req, res) => {
 
         const validOTP = await bcrypt.compare(otp, OTPHash);
 
-        await User.updateOne({ _id: userId }, { verified: true });
+        if (!/^(?=.*[A-Z])(?=.*[!#@$%&])(?=.*[0-9])(?=.*[a-z]).{6,15}$/.test(newPassword)) {
+            res.status(422).json({ msg: 'A nova senha deve conter entre 6 e 15 caracteres e incluir pelo menos uma letra maiúscula, um número e um caractere especial.' });
+            return;
+        };
+
+        const salt = await bcrypt.genSalt(12);
+        const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+        await User.updateOne({ _id: userId }, { password: newPasswordHash });
 
         await EmailOTP.deleteOne({ userId: userId });
 

@@ -6,11 +6,12 @@ const EmailOTP = mongoose.model('UserOTP', {
     userId: {
         type:  mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        require: true
+        required: true,
+        index: true
     },
     uniqueString: {
         type: String,
-        require: true
+        required: true
     },
     createdAt: Date,
     expiresAt: Date

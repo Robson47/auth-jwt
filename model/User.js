@@ -5,24 +5,24 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User', {
     name: {
         type: String,
-        require: true
+        required: true
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     password: {
         type: String,
-        require: true
+        required: true
     },
     technician: {
         type: Boolean,
-        require: true
+        required: true
     },
     verified: {
         type: Boolean,
-        default: false
+        defaultd: false
     }
 });
 
