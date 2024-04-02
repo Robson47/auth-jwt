@@ -1,21 +1,41 @@
-// Importação do Mongoose
-const mongoose = require('mongoose');
+const sequelize = require(sequelize);
+const connection = require("..database/database");
+const Technician = require('../../model/Technician');
 
-// Modelo de Verificação de Usuário
-const EmailOTP = mongoose.model('UserOTP', {
-    userId: {
-        type:  mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true
-    },
-    uniqueString: {
-        type: String,
-        required: true
-    },
-    createdAt: Date,
-    expiresAt: Date
+const EmailOTP = connection.define(
+    "emailOTP",
+    {
+        userId:{
+            type: sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+            unsigned: true
+        },
+        uniqueString:{
+            type: sequelize.STRING(255),
+            allowNull: false
+        },
+        createdAt:{
+            type: sequelize.DATETIME,
+            allowNull: false
+        },
+        expiresAt:{
+            type: sequelize.DATETIME,
+            allowNull: false
+        },                
+    }
+);
+
+EmailOTP.sync({force:false});
+
+Technician.hasMany(EmailOTP, {
+    foreignKey: 'userId',
+    sourceKey: 'cod_technician'
 });
 
-// Exportação do Modelo de Verificação de Usuário
+Technician.belongsTo(EmailOTP, {
+    foreignKey: 'userId',
+    sourceKey: 'cod_technician'
+});
+
 module.exports = EmailOTP;

@@ -38,6 +38,10 @@ const Technician = connection.define(
             type: sequelize.STRING(255),
             allowNull: true
         },
+        picture_url:{
+            type: sequelize.STRING(255),
+            allowNull: true
+        },
         address:{
             type: sequelize.INTEGER
         },               
@@ -48,6 +52,6 @@ const Technician = connection.define(
     }
 );
 
-User.sync({force:false});
+Technician.sync({force:false});
 
-module.exports = User;
+module.exports = Technician;

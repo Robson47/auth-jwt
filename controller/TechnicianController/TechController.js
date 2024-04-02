@@ -32,13 +32,13 @@ exports.publicRoute = (req, res) => {
 // Rota Privada
 exports.privateRoute = async (req, res) => {
     try {
-        const userId = req.params.id; // Obtém o ID do usuário do objeto de solicitação
-        const user = await Techinician.findById(userId, '-password');
+        const Id = req.params.id; // Obtém o ID do usuário do objeto de solicitação
+        const technician = await Technician.findById(Id, '-password');
 
-        if (!user) {
+        if (!technician) {
             return res.status(404).json({ msg: 'Usuário não encontrado.' });
         };
-        res.status(200).json({ user });
+        res.status(200).json({ technician });
     } catch (error) {
         res.status(500).json({ msg: 'Erro ao buscar o usuário.' });
         console.log(error);

@@ -5,10 +5,10 @@ const Technician = require('../../model/Technician');
 exports.updateData = async (req, res) => {
     const id = req.params.id;
     const { name, email } = req.body;
-    const Technician = { name, email };
+    const technician = { name, email };
 
     try {
-        const updatedTechnician = await Technician.updateOne({ cod_technician: id }, Technician);
+        const updatedTechnician = await Technician.updateOne({ cod_technician: id }, technician);
 
         if (updatedTechnician.matchedCount === 0) {
             return res.status(404).json({ msg: 'Usuário não encontrado!' });

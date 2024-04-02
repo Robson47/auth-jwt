@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 
 /* Rota de Registro */
 exports.register = async (req, res) => {
-    const { name, email, password, confirmPassword, verified } = req.body;
+    const { name, email, password, confirmPassword, verified, contact, birth_day, specialization  } = req.body;
+    const file = req.file;
 
     // Validação de Dados
     if (!name || !email || !password) {
@@ -29,6 +30,10 @@ exports.register = async (req, res) => {
         return res.status(422).json({ msg: 'As senhas não coincidem!' });
     };
 
+    if (!file) {
+        return res.status(422).json({ msg: 'Não há imagem!' });
+    };
+
     // Checar se o Usuário existe
     const TechnicianExists = await Technician.findOne({ email: email });
 
@@ -41,11 +46,21 @@ exports.register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Criar Usuário
-    const Technician = new Technician({ name, email, password: passwordHash, verified });
+    const fileName = Date.now().toString() + "-" + file.originalname;
+
+    const fileRef = ref(storage, fileName);
+
+    uploadBytes(fileRef, file.buffer);
+
+    const imageRef = ref(storage, snapshot.metadata.name);
+
+    const urlFinal = getDownloadURL(imageRef);
+
+    const technician = new Technician({ name, email, password: passwordHash, verified, contact, specialization, birth_day, technician_picture: fileName, picture_url: urlFinal });
 
     try {
-        await Technician.save();
-        res.status(201).json({ msg: `O usuário ${Technician.name} foi cadastrado com sucesso!` });
+        await technician.save();
+        res.status(201).json({ msg: `O usuário ${technician.name} foi cadastrado com sucesso!` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ msg: 'Ocorreu um erro ao cadastrar o usuário.' });
@@ -66,27 +81,27 @@ exports.login = async (req, res) => {
     };
 
     // Checar se Usuário existe
-    const Technician = await Technician.findOne({ email: email });
+    const user = await User.findOne({ email: email });
 
-    if (!Technician) {
+    if (!user) {
         return res.status(404).json({ msg: 'Usuário não encontrado!' });
     };
 
     // Checar se as senhas combinam
     try {
-        const match = await bcrypt.compare(password, Technician.password);
+        const match = await bcrypt.compare(password, user.password);
         if (!match) {
             return res.status(422).json({ msg: 'Senha inválida!' });
         };
 
         // Checar se o usuário é verificado
-        if (!Technician.verified) {
+        if (!user.verified) {
             return res.status(404).json({ msg: 'Usuário não verificado!' });
         };
 
         // Gerar token JWT
         const secret = process.env.SECRET;
-        const token = jwt.sign({ id: Technician.cod_technician }, secret);
+        const token = jwt.sign({ id: user._id }, secret);
 
         res.status(200).json({ msg: 'Autenticação realizada com sucesso!', token });
     } catch (error) {
