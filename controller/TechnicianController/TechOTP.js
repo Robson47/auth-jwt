@@ -1,8 +1,8 @@
 //Importações
-const transporter = require('../config/OTPConfig');
-const EmailOTP = require('../model/EmailOTP');
+const transporter = require('../../config/OTPConfig');
+const EmailOTP = require('../../model/EmailOTP');
 const bcrypt = require('bcrypt');
-const User = require('../model/User');
+const Technician = require('../../model/Technician');
 
 /* Rota para envio de Email */
 exports.emailOTP = async (req, res) => {
@@ -11,8 +11,8 @@ exports.emailOTP = async (req, res) => {
         const salt = await bcrypt.genSalt(12);
         const OTPHash = await bcrypt.hash(otp, salt);
         const userId = req.params.id;
-        const user = await User.findById(userId);
-        const email = user.email;
+        const Technician = await Technician.findById(userId);
+        const email = Technician.email;
         transporter.sendMail({
             from: {
                 name: 'Technic Connect Team',
@@ -80,7 +80,7 @@ exports.confirmOTP = async (req, res) => {
 
         const validOTP = await bcrypt.compare(otp, OTPHash);
 
-        await User.updateOne({ _id: userId }, { verified: true });
+        await Technician.updateOne({ cod_technician: userId }, { verified: true });
 
         await EmailOTP.deleteOne({ userId: userId });
 

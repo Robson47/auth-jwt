@@ -1,6 +1,6 @@
-const User = require('../model/User');
-const transporter = require('../config/OTPConfig');
-const EmailOTP = require('../model/EmailOTP');
+const User = require('../../model/User');
+const transporter = require('../../config/OTPConfig');
+const EmailOTP = require('../../model/EmailOTP');
 const bcrypt = require('bcrypt');
 
 exports.forgotPassword = async (req, res) => {
@@ -74,14 +74,14 @@ exports.changePassword = async (req, res) => {
         if (!userId || !otp || !newPassword) {
             res.status(422).json({ msg: 'Código de verificação ou Senha inválidos.' });
             return;
-        }
+        };
 
         const otpMatch = await EmailOTP.findOne({ userId: userId });
 
         if (!otpMatch) {
             res.status(422).json({ msg: 'Nenhum código de verificação encontrado.' });
             return;
-        }
+        };
 
         const { expiresAt, uniqueString: OTPHash } = otpMatch;
 
@@ -101,7 +101,7 @@ exports.changePassword = async (req, res) => {
         const salt = await bcrypt.genSalt(12);
         const newPasswordHash = await bcrypt.hash(newPassword, salt);
 
-        await User.updateOne({ _id: userId }, { password: newPasswordHash });
+        await User.updateOne({ cod_user: userId }, { password: newPasswordHash });
 
         await EmailOTP.deleteOne({ userId: userId });
 

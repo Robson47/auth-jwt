@@ -1,10 +1,10 @@
 const sequelize = require(sequelize);
 const connection = require("..database/database");
 
-const User = connection.define(
-    "clientes",
+const Technician = connection.define(
+    "tecnicos",
     {
-        cod_user:{
+        cod_technician:{
             type: sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true,
@@ -30,17 +30,16 @@ const User = connection.define(
             type: sequelize.DATE(),
             allowNull: false
         },
-        main_device:{
-            type: sequelize.STRING(255),
+        specialization:{
+            type: sequelize.INTEGER,
             allowNull: false
         },
-        user_picture:{
+        technician_picture:{
             type: sequelize.STRING(255),
             allowNull: true
         },
-        picture_url:{
-            type: sequelize.STRING(255),
-            allowNull: true
+        address:{
+            type: sequelize.INTEGER
         },               
         verified:{
             type: sequelize.BOOLEAN,

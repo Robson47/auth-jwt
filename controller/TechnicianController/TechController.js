@@ -1,6 +1,6 @@
 // Importações
 require('dotenv').config();
-const User = require('../model/User');
+const Technician = require('../../model/Technician');
 const jwt = require('jsonwebtoken');
 
 // Método para validação de token
@@ -15,7 +15,7 @@ function checkToken(req, res, next) {
     try {
         const secret = process.env.SECRET;
         const decoded = jwt.verify(token, secret);
-        req.user = decoded.user; // Adiciona o usuário decodificado ao objeto de solicitação para acesso nas rotas protegidas
+        req.technician = decoded.technician; // Adiciona o usuário decodificado ao objeto de solicitação para acesso nas rotas protegidas
         next();
     } catch (error) {
         res.status(401).json({ msg: 'Token inválido.' });
@@ -33,7 +33,7 @@ exports.publicRoute = (req, res) => {
 exports.privateRoute = async (req, res) => {
     try {
         const userId = req.params.id; // Obtém o ID do usuário do objeto de solicitação
-        const user = await User.findById(userId, '-password');
+        const user = await Techinician.findById(userId, '-password');
 
         if (!user) {
             return res.status(404).json({ msg: 'Usuário não encontrado.' });

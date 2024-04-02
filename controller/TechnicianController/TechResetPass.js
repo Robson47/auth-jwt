@@ -1,0 +1,113 @@
+const Technician = require('../../model/Technician');
+const transporter = require('../../config/OTPConfig');
+const EmailOTP = require('../../model/EmailOTP');
+const bcrypt = require('bcrypt');
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const technicianId = req.params.id;
+        const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+        const salt = await bcrypt.genSalt(12);
+        const OTPHash = await bcrypt.hash(otp, salt);
+
+        // Validar o email
+        if (!email) {
+            res.status(422).json({ msg: 'Email inválido' })
+        };
+
+        const isTechnician = await Technician.findById(technicianId);
+
+        if (isTechnician.email !== email) {
+            res.status(422).json({ msg: 'Email inválido' })
+        }
+
+        // Checar se o Usuário existe
+        const TechnicianExists = await Technician.findOne({ email: email });
+
+        if (!TechnicianExists) {
+            return res.status(422).json({ msg: 'Não existe um usuário com este email!' });
+        };
+
+        // Checar se o usuário é verificado
+        if (!TechnicianExists.verified) {
+            return res.status(404).json({ msg: 'Usuário não verificado!' });
+        };
+
+        transporter.sendMail({
+            from: {
+                name: 'Technic Connect Team',
+                address: 'TechnicConnectTeam@gmail.com'
+            },
+            to: email,
+            subject: "Redefinição de Senha",
+            text: "Mude sua senha para uma melhor",
+            html: `<h1>Digite o código: ${otp} para alterar sua senha</h1>
+                    <p><b>Este código expira em 1 hora</b></p>`
+        });
+
+        const newOTPVerification = await new EmailOTP({
+            TechnicianId: technicianId,
+            uniqueString: OTPHash,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 3600000,
+        });
+
+        await newOTPVerification.save();
+
+        res.status(200).json({
+            msg: 'E-mail enviado no seu Inbox.',
+            data: {
+                userId: technicianId,
+                email: email
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao enviar email:', error);
+        res.status(500).json({ msg: 'Ocorreu um erro ao enviar o email.' });
+    };
+};
+
+exports.changePassword = async (req, res) => {
+    const { technicianId, otp, newPassword } = req.body;
+    try {
+        if (!technicianId || !otp || !newPassword) {
+            res.status(422).json({ msg: 'Código de verificação ou Senha inválidos.' });
+            return;
+        };
+
+        const otpMatch = await EmailOTP.findOne({ userId: technicianId });
+
+        if (!otpMatch) {
+            res.status(422).json({ msg: 'Nenhum código de verificação encontrado.' });
+            return;
+        };
+
+        const { expiresAt, uniqueString: OTPHash } = otpMatch;
+
+        if (expiresAt < Date.now()) {
+            await EmailOTP.deleteOne({ technicianId });
+            res.status(500).json({ msg: 'Seu código de verificação expirou, solicite outro código.' })
+            return;
+        };
+
+        const validOTP = await bcrypt.compare(otp, OTPHash);
+
+        if (!/^(?=.*[A-Z])(?=.*[!#@$%&])(?=.*[0-9])(?=.*[a-z]).{6,15}$/.test(newPassword)) {
+            res.status(422).json({ msg: 'A nova senha deve conter entre 6 e 15 caracteres e incluir pelo menos uma letra maiúscula, um número e um caractere especial.' });
+            return;
+        };
+
+        const salt = await bcrypt.genSalt(12);
+        const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+        await Technician.updateOne({ cod_technician: TechnicianId }, { password: newPasswordHash });
+
+        await EmailOTP.deleteOne({ userId: TechnicianId });
+
+        return res.status(200).json({ validOTP });
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ msg: error });
+    };
+};
