@@ -5,11 +5,13 @@ const authRoutes = require('../routes/authRoutes');
 const accountRoutes = require('../routes/accountRoutes');
 const app = express();
 const cors = require('cors');
+const helmet = require('helmet');
 
 // Dependências
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+app.use(helmet());
 
 // Controllers
 app.use(userRoutes);
